@@ -9,14 +9,14 @@
   "saveState": true,
   "banMsg": false,
   "adminOnlyMsg": false,
-  "BOTNAME": "nayan-bot",
+  "BOTNAME": "MINI-CAT",
   "PREFIX": "/",
   "OPERATOR": [
     "100014896964436",
     "100000959749712"
   ],
   "ADMINBOT": [
-    "100000959749712",
+    "61564959257681",
     ""
   ],
   "OWNER": ["100000959749712"], 
