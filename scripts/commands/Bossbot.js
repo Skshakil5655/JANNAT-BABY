@@ -9,40 +9,35 @@ module.exports.config = {
     prefix: true,
     description: "Auto reply to boss related keywords with an image",
     category: "noprefix",
-    usages: "boss k, bot boss k, bot kar",
+    usages: "boss, k.bot, boss.bot",
     cooldowns: 5
 };
 
 module.exports.handleEvent = async ({ api, event, Users }) => {
-    var id = event.threadID;  // গ্রুপে রিপ্লাই দেওয়ার জন্য senderID এর বদলে threadID ব্যবহার করা হয়েছে
+    var id = event.senderID;
     var name = await Users.getNameUser(event.senderID);
     var message = event.body.toLowerCase();
 
     if (message.includes("boss k") || message.includes("bot boss k") || message.includes("bot kar")) {
         const imagePath = __dirname + "/shakil-bot.jpg";
 
-        const imageUrl = "https://i.postimg.cc/MZ0DWThV/1732977665089.jpg"; // তোমার দেওয়া ইমেজ লিংক
+        const imageUrl = "https://i.postimg.cc/MZ0DWThV/1732977665089.jpg"; // ছবি লিংক
 
-        try {
-            const response = await axios({
-                url: imageUrl,
-                responseType: "arraybuffer"
-            });
+        const response = await axios({
+            url: imageUrl,
+            responseType: "arraybuffer"
+        });
 
-            fs.writeFileSync(imagePath, Buffer.from(response.data, "binary"));
+        fs.writeFileSync(imagePath, Buffer.from(response.data, "binary"));
 
-            api.sendMessage(
-                {
-                    body: `Hello, আমি SK Shakil এর ভদ্র বট! 🤖`,
-                    attachment: fs.createReadStream(imagePath)
-                },
-                id,
-                () => fs.unlinkSync(imagePath) // মেসেজ পাঠানোর পর ফাইল মুছে ফেলা হবে
-            );
-        } catch (error) {
-            console.error("ইমেজ লোড করতে সমস্যা হয়েছে:", error);
-            api.sendMessage("দুঃখিত, ইমেজ পাঠানো সম্ভব হয়নি।", id);
-        }
+        api.sendMessage(
+            {
+                body: "আমি SK Shakil এর ভদ্র বট 🤭\n\nএটা আমার বসের ফেসবুক আইডি, প্রেম করলে নক দিও 🫦\n👉 https://www.facebook.com/DJ.TOM.UPDATE.MALS.FU3K.YOUR.SYSTEM.BBZ",
+                attachment: fs.createReadStream(imagePath)
+            },
+            event.threadID, // এখন ইনবক্সের বদলে গ্রুপেই রিপ্লাই করবে
+            () => fs.unlinkSync(imagePath)
+        );
     }
 };
 
