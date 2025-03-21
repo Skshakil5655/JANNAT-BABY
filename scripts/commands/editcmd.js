@@ -1,46 +1,75 @@
-const fs = require("fs");
-const path = "./commands.json"; 
-
 module.exports.config = {
     name: "editcmd",
     version: "1.0.0",
-    permission: 2,
+    permission: 2, // শুধু OWNER ইউজ করতে পারবে
     credits: "Shakil",
-    description: "Bot command edit system",
+    description: "কাস্টম কমান্ড যোগ, এডিট, ডিলিট & লিস্ট",
     prefix: true,
     category: "admin",
-    usages: "[add/edit/list] [command] [new response]",
+    usages: "[add/edit/delete/list] [command_name] [response]",
     cooldowns: 5
 };
 
-module.exports.run = async function ({ api, event, args }) {
-    if (!fs.existsSync(path)) fs.writeFileSync(path, JSON.stringify({}, null, 2));
+const fs = require("fs");
+const customCommandsFile = "./customCommands.json";
 
-    let commands = JSON.parse(fs.readFileSync(path));
-
-    let action = args[0];
-    let commandName = args[1];
-    let newResponse = args.slice(2).join(" ");
-
-    if (action === "add" || action === "edit") {
-        if (!commandName || !newResponse) return api.sendMessage("❌ Usage: /editcmd add/edit <command_name> <new_response>", event.threadID);
-        commands[commandName] = newResponse;
-        fs.writeFileSync(path, JSON.stringify(commands, null, 2));
-        return api.sendMessage(`✅ Command "${commandName}" updated successfully!`, event.threadID);
-    }
-
-    if (action === "list") {
-        let list = Object.keys(commands).map(cmd => `🔹 ${cmd}: ${commands[cmd]}`).join("\n");
-        return api.sendMessage(list ? `📜 Command List:\n${list}` : "❌ No commands found.", event.threadID);
-    }
-
-    return api.sendMessage("❌ Invalid action. Use: /editcmd add/edit/list", event.threadID);
+// কমান্ড লোড & সেভ করার ফাংশন
+const loadCommands = () => {
+    if (!fs.existsSync(customCommandsFile)) fs.writeFileSync(customCommandsFile, JSON.stringify({}, null, 2));
+    return JSON.parse(fs.readFileSync(customCommandsFile));
 };
 
-module.exports.onMessage = function ({ api, event }) {
-    let commands = JSON.parse(fs.readFileSync(path));
-    let userMessage = event.body.toLowerCase();
-    if (commands[userMessage]) {
-        api.sendMessage(commands[userMessage], event.threadID);
+const saveCommands = (data) => {
+    fs.writeFileSync(customCommandsFile, JSON.stringify(data, null, 2));
+};
+
+module.exports.run = ({ api, event, args, permssion }) => {
+    const senderID = event.senderID;
+    const ownerID = "61564959257681"; // শুধু তুমি ইউজ করতে পারবে
+
+    if (senderID !== ownerID) return api.sendMessage("❌ তুমি এই কমান্ড ব্যবহার করতে পারবে না!", event.threadID);
+
+    let commands = loadCommands();
+    let type = args[0];
+    let commandName = args[1]?.toLowerCase();
+    let response = args.slice(2).join(" ");
+
+    if (!type) return api.sendMessage("⚠️ ব্যবহার: editcmd [add/edit/delete/list] [command_name] [response]", event.threadID);
+
+    if (type === "add") {
+        if (!commandName || !response) return api.sendMessage("⚠️ ব্যবহার: editcmd add [command_name] [response]", event.threadID);
+        commands[commandName] = response;
+        saveCommands(commands);
+        return api.sendMessage(`✅ কমান্ড **${commandName}** যোগ করা হয়েছে!`, event.threadID);
     }
+
+    if (type === "edit") {
+        if (!commandName || !response) return api.sendMessage("⚠️ ব্যবহার: editcmd edit [command_name] [new_response]", event.threadID);
+        if (!commands[commandName]) return api.sendMessage("❌ এই কমান্ড নেই!", event.threadID);
+        commands[commandName] = response;
+        saveCommands(commands);
+        return api.sendMessage(`✅ **${commandName}** কমান্ড আপডেট করা হয়েছে!`, event.threadID);
+    }
+
+    if (type === "delete") {
+        if (!commandName) return api.sendMessage("⚠️ ব্যবহার: editcmd delete [command_name]", event.threadID);
+        if (!commands[commandName]) return api.sendMessage("❌ এই কমান্ড নেই!", event.threadID);
+        delete commands[commandName];
+        saveCommands(commands);
+        return api.sendMessage(`🗑 **${commandName}** কমান্ড ডিলিট করা হয়েছে!`, event.threadID);
+    }
+
+    if (type === "list") {
+        let commandList = Object.keys(commands);
+        return api.sendMessage(`📜 কাস্টম কমান্ড লিস্ট:\n${commandList.length > 0 ? commandList.join(", ") : "❌ কোনো কমান্ড নেই!"}`, event.threadID);
+    }
+
+    return api.sendMessage("⚠️ ভুল কমান্ড! ব্যবহার: editcmd [add/edit/delete/list] [command_name] [response]", event.threadID);
+};
+
+// ইউজার যখন কাস্টম কমান্ড ইউজ করবে তখন রান করানো হবে
+module.exports.onMessage = ({ api, event }) => {
+    let commands = loadCommands();
+    let message = event.body.toLowerCase();
+    if (commands[message]) return api.sendMessage(commands[message], event.threadID);
 };
