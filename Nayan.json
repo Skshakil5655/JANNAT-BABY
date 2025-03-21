@@ -1,5 +1,5 @@
 {
-  "author": "Shakil",
+  "author": "Nayan",
   "autoRestart": true,
   "accpetPending": false,
   "developermode": false,
@@ -12,19 +12,18 @@
   "BOTNAME": "VUDAR-BOT",
   "PREFIX": "/",
   "OPERATOR": [
-    "61564959257681",
+    "100014896964436",
     "100000959749712"
   ],
   "ADMINBOT": [
     "61564959257681",
-    "100000000000000"
+    ""
   ],
-  "OWNER": ["61564959257681"], 
-  "CREDITS": "Shakil",
+  "OWNER": ["100000959749712"], 
   "APPROVED": [],
   "disabledcmds": [],
   "disabledevents": [],
-  "note": "Make sure that the bot name you entered is all lowercase",
-  "notice": "Don't change the author name and owner UID, otherwise bot will not work.",
-  "notice2": "If you run using email and password, set saveState to false; otherwise, use saveState true."
+  "note": "make sure that the bot name you entered is all lowercase",
+  "notice": "dont cng author name and owner uid. otherwise bot not working",
+  "notice2": "if you run use email and password, use saveState false; otherwise, use saveState true"
 }
