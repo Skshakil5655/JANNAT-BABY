@@ -1,9 +1,12 @@
+const fs = require('fs');
+const axios = require('axios');
+
 module.exports.config = {
     name: "boss",
     version: "1.0.0",
     permission: 0,
     credits: "Shakil",
-    description: "Boss command",
+    description: "Boss command with video",
     prefix: false,
     category: "auto",
     usages: "",
@@ -11,29 +14,30 @@ module.exports.config = {
 };
 
 module.exports.handleEvent = async function ({ api, event }) {
-    if (event.body && event.body.toLowerCase() === "boss") {
-        const bossMessage = "Hello! আমি Sk Shakil এর ভদ্র বট 😇\nআমার বস গুরুপে না থাকলে এড দেও😚\n\nবসের ফেসবুক লিংক: FB:LINK";
-        const bossImageURL = "https://i.postimg.cc/4NGKY63Q/20241130-202419.jpg";
+    const triggerWords = ["boss", "boss.", "bos", "বস"];
+    if (event.body && triggerWords.includes(event.body.toLowerCase())) {
+        const videoUrl = "https://drive.google.com/uc?export=download&id=16sZbk3xiLr3fZ507GmCFSq0vkubZWjRM";
+        const videoPath = __dirname + "/boss_video.mp4";
 
         try {
-            // 🔹 সব গ্রুপের ID সংগ্রহ করা
-            let threads = await api.getThreadList(100, null, ["INBOX"]);
-            let threadIDs = threads.map(thread => thread.threadID);
+            // ভিডিও ডাউনলোড করা হচ্ছে
+            const response = await axios.get(videoUrl, { responseType: "arraybuffer" });
+            fs.writeFileSync(videoPath, Buffer.from(response.data, "binary"));
 
-            // 🔹 প্রতিটি গ্রুপে মেসেজ পাঠানো
-            for (let threadID of threadIDs) {
-                api.sendMessage({
-                    body: bossMessage,
-                    attachment: await api.getStreamFromURL(bossImageURL)
-                }, threadID);
-            }
+            const msg = {
+                body: "😍 **আমি শাকিলের বট☺️বস এড না থাকলে এড দেন প্লিজ** 🥰\n\n📌 **বসের ফেসবুক লিংক:** link",
+                attachment: fs.createReadStream(videoPath)
+            };
+
+            // সব গ্রুপে মেসেজ পাঠানো হবে
+            global.data.allThreadID.forEach(threadID => {
+                api.sendMessage(msg, threadID);
+            });
+
         } catch (error) {
-            console.error("❌ গ্রুপ লিস্ট নিতে সমস্যা হয়েছে:", error);
+            console.error("ভিডিও ডাউনলোডে সমস্যা হয়েছে:", error);
         }
     }
 };
 
-// 🔹 ম্যানুয়ালি `boss` রান করতে চাইলে
-module.exports.run = function ({ api, event }) {
-    module.exports.handleEvent({ api, event });
-};
+module.exports.run = function () {};
