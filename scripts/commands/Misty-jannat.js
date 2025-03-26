@@ -21,7 +21,7 @@ module.exports.handleEvent = async function ({ api, event }) {
 
     if (text.includes("misty k")) {
         const msg = "😏 Misty আমার বস শাকিল এর এক্স🙂\nএটাই সালির এক্স এর পিক🥹!";
-        const imgURL = "https://i.postimg.cc/C5RyJHpB/Messenger-creation-6-DA65-DC4-A810-425-A-AEF0-65-C46-E4-F8-A2-C.jpg"; // Misty এর ছবি
+        const imgURL = "https://i.postimg.cc/kGvtD3F7/received-1332490791354654.jpg"; // Misty এর ছবি
 
         const imgPath = __dirname + "/misty-pic.jpg";
         const response = await axios.get(imgURL, { responseType: "arraybuffer" });
