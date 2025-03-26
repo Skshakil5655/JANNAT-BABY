@@ -1,14 +1,17 @@
 module.exports.config = {
     name: "misty_jannat",
-    version: "1.0.0",
-    permission: 0, // সবাই ব্যবহার করতে পারবে
+    version: "1.0.4",
+    permission: 0,
     credits: "Shakil",
-    prefix: false, // প্রেফিক্স ছাড়া চলবে
-    description: "Misty K or Jannat K likhle automatic reply dibe!",
-    category: "fun",
+    prefix: false,
+    description: "Misty K or Jannat K likhle automatic reply dibe, Misty te image thakbe!",
+    category: "auto-reply",
     usages: "",
     cooldowns: 5
 };
+
+const fs = require("fs");
+const axios = require("axios");
 
 module.exports.handleEvent = async function ({ api, event }) {
     const { body, threadID } = event;
@@ -17,12 +20,22 @@ module.exports.handleEvent = async function ({ api, event }) {
     const text = body.toLowerCase();
 
     if (text.includes("misty k")) {
-        return api.sendMessage("Misty আমার বস শাকিল এর এক্স🙂", threadID);
+        const msg = "😏 Misty আমার বস শাকিল এর এক্স🙂\nএটাই সালির এক্স এর পিক🥹!";
+        const imgURL = "https://i.postimg.cc/C5RyJHpB/Messenger-creation-6-DA65-DC4-A810-425-A-AEF0-65-C46-E4-F8-A2-C.jpg"; // Misty এর ছবি
+
+        const imgPath = __dirname + "/misty-pic.jpg";
+        const response = await axios.get(imgURL, { responseType: "arraybuffer" });
+        fs.writeFileSync(imgPath, Buffer.from(response.data, "binary"));
+
+        api.sendMessage({ body: msg, attachment: fs.createReadStream(imgPath) }, threadID, () => {
+            fs.unlinkSync(imgPath);
+        });
+
     } else if (text.includes("jannat k")) {
-        return api.sendMessage("Jannat আমার বস শাকিলের এক্স🤕", threadID);
+        api.sendMessage("💔 Jannat আমার বস শাকিলের এক্স🤕", threadID);
     }
 };
 
 module.exports.run = async function ({ api, event }) {
-    return api.sendMessage("এই কমান্ডটি স্বয়ংক্রিয়ভাবে কাজ করে! 'Misty K' বা 'Jannat K' লিখুন", event.threadID);
+    return api.sendMessage("এই কমান্ডটি স্বয়ংক্রিয়ভাবে কাজ করে! শুধু 'Misty K' বা 'Jannat K' লিখুন!", event.threadID);
 };
