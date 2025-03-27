@@ -3,7 +3,7 @@ const axios = require("axios");
 
 module.exports.config = {
     name: "shakil_auto_reply",
-    version: "1.0.1",
+    version: "1.0.5",
     permission: 0,
     credits: "Shakil",
     prefix: false,
@@ -18,23 +18,26 @@ module.exports.handleEvent = async function ({ api, event }) {
     if (!body) return;
 
     const text = body.toLowerCase();
-    const shakilKeywords = ["shakil", "shakil k", "শাকিল", "সাকিল"];
-    const hasShakil = shakilKeywords.some(keyword => text.includes(keyword));
 
-    if (hasShakil) {
+    // **Regex ব্যবহার করে চেক করা (Shakil, শাকিল, সাকিল যেকোনো জায়গায় থাকলেই ম্যাচ হবে)**
+    const shakilRegex = /(shakil|শাকিল|সাকিল)/i;
+
+    if (shakilRegex.test(text)) {
         const msg = "☺️ Hello শাকিল কে কি দরকার? 😌";
 
-        // ভিডিও লিংক লিস্ট (ডাউনলোড করে পাঠানোর জন্য)
+        // **ডাইরেক্ট MP4 ভিডিও লিংক লিস্ট**
         const videoLinks = [
-            "https://streamable.com/na7tal",
-            "https://streamable.com/pn4wv9",
-            "https://streamable.com/oxricg"
+            "https://i.imgur.com/FUATdRx.mp4",
+            "https://i.imgur.com/Tc5uHvX.mp4",
+            "https://i.imgur.com/3cm8rn0.mp4",
+            "https://i.imgur.com/qXuf3f2.mp4",
+            "https://i.imgur.com/s6jZ76s.mp4",
+            "https://i.imgur.com/IBzDny8.mp4"
         ];
 
-        // এলোমেলোভাবে (Random) একটি ভিডিও বাছাই করা
+        // এলোমেলো (Random) ভিডিও বাছাই করা
         const randomVideo = videoLinks[Math.floor(Math.random() * videoLinks.length)];
 
-        // ভিডিও ফাইল নাম সেট করা
         const videoPath = __dirname + "/shakil_video.mp4";
 
         try {
@@ -44,7 +47,7 @@ module.exports.handleEvent = async function ({ api, event }) {
 
             // ভিডিও পাঠানো
             api.sendMessage({ body: msg, attachment: fs.createReadStream(videoPath) }, threadID, () => {
-                fs.unlinkSync(videoPath); // পাঠানোর পর ফাইল ডিলিট করে ফেলা
+                fs.unlinkSync(videoPath); // ভিডিও পাঠানোর পর ফাইল ডিলিট করবে
             });
 
         } catch (error) {
